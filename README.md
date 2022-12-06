@@ -20,3 +20,6 @@ The goal of this application is to simulate a cells population able to reproduce
 
 # Class Diagram
 ![diagram](https://user-images.githubusercontent.com/80709747/197619420-6e08924f-60c1-48c6-add9-006bb0d3fc82.png)
+
+
+![image](https://user-images.githubusercontent.com/80709747/205849651-034dd625-d9b4-4fbf-a39b-d774d62c6bdf.png)
