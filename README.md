@@ -16,10 +16,8 @@ The goal of this application is to simulate a cells population able to reproduce
 1. The system shall be stable, the user can not insert out of set range parameters. (As an example T_full and T_starve positive numbers between 2 and 10s)
 
 # High-level component design of the application
- 
+![image](https://user-images.githubusercontent.com/80709747/205849651-034dd625-d9b4-4fbf-a39b-d774d62c6bdf.png) 
 
 # Class Diagram
 ![diagram](https://user-images.githubusercontent.com/80709747/197619420-6e08924f-60c1-48c6-add9-006bb0d3fc82.png)
 
-
-![image](https://user-images.githubusercontent.com/80709747/205849651-034dd625-d9b4-4fbf-a39b-d774d62c6bdf.png)
