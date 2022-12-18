@@ -17,8 +17,8 @@ public class Main {
     public void place_cell_on_grid(){
 
     }
-
     public static void main(String[] args) {
         log.info("Hello World");
+        log.info("Hello again");
     }
 }

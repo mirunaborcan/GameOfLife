@@ -15,40 +15,37 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class Playground {
 
-    private ArrayList<Cell> cellsList = new ArrayList<Cell>();
+    //private ExecutorService executor = Executors.newFixedThreadPool(100);
+    private ArrayList<Cell> cellsList = new ArrayList<>();
     private LinkedBlockingQueue<Food> food = new LinkedBlockingQueue<>();
     private static final Logger log = LoggerFactory.getLogger(Playground.class);
 
     public Logger getLogger(){
         return log;
     }
-    public boolean canEat(String threadInfo) throws InterruptedException {
+    public boolean canEat(String threadInfo) {
         try {
-            Boolean lockFood;
-            Iterator<Food> foodIt = food.iterator();
-            while(foodIt.hasNext()) {
-                Food resource = foodIt.next();
+            boolean lockFood;
+            for (final Food resource : food) {
                 lockFood = resource.lock.tryLock();
-                if (lockFood){
-                    try{
-                        log.info(threadInfo + " locked the food resource " + resource.name);
-                        if(resource.getFoodUnit() > 0 ) {
+                if (lockFood) {
+                    try {
+                        //log.info(threadInfo + " acquired lock for " + resource.name);
+                        if (resource.getFoodUnit() > 0) {
                             resource.decrement();
-                            log.info("Food " + resource.name + "has been eaten.");
+                            log.info("Food "+resource.name+" decremented by " + threadInfo);
                             return true;
                         }
-                    }
-                    finally
-                    {
+                    } finally {
                         // Make sure to unlock so that we don't cause a deadlock
-                        log.info(threadInfo + " unlocked the food resource " + resource.name);
+                        //log.info(threadInfo + " unlocked " + resource.name);
                         resource.lock.unlock();
                     }
-                }else
-                    log.info(threadInfo + " tried to lock food resource " + resource.name);
+                }
+//                else
+//                    log.info(threadInfo + " tried to lock food resource " + resource.name + " but it was locked");
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return false;
@@ -56,56 +53,34 @@ public class Playground {
 
     public void addCell(Cell c) {
         cellsList.add(c);
+       // Thread t = new Thread(c);
+        //c.thread = t;
+       // executor.execute(t);
     }
 
 
     public void addFood(int resources, String threadInfo) {
 
+        boolean lockFood;
+        for (final Food resource : food) {
+            lockFood = resource.lock.tryLock();
+            if (lockFood) {
+                try {
+                    resource.increment(resources);
+                    log.info("Food " + resource.name + " has been incremented");
+                    break;
+                } finally {
+                    // Make sure to unlock so that we don't cause a deadlock
+                    // log.info(threadInfo + " unlocked " + resource.name);
+                    resource.lock.unlock();
+                }
+            } //else
+            // log.info(threadInfo + " tried to lock food " + resource.name);
 
 
-        for (int i = 0; i < resources; i++) {
-
-            try {
-                this.food.put(new Food(1, "resource" + i + threadInfo));
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
         }
-//        int aux= resources;
-//        Boolean lockFood;
-//        Iterator<Food> foodIt = food.iterator();
-//        while (foodIt.hasNext()) {
-//            Food resource = foodIt.next();
-//            lockFood = resource.lock.tryLock();
-//            if (lockFood) {
-//                try {
-//                    log.info(threadInfo + " acquired lock for " + resource.name);
-//                    if (resource.getResourceUnits() == 0 && resources >0) {
-//                        resource.incrementResourceUnits(1);
-//                        resources--;
-//                        resource.setName( resource.name + "/"+ resources);
-//                        log.info("Food " + resource.name + "has been eaten.");
-//
-//                    }
-//                } finally {
-//                    // Make sure to unlock so that we don't cause a deadlock
-//                    log.info(threadInfo + " unlocked " + resource.name);
-//                    resource.lock.unlock();
-//                }
-//            } else
-//                log.info(threadInfo + " tried to lock food " + resource.name);
-//
-//
-//        }
-//
-//               if (resources > 0) {
-//
-//                for (int i = resources; i < aux; i++) {
-//
-//                    this.food.add(new Food(1, "resource" + i + threadInfo));
-//                }
-//            }
-    }
+
+   }
 
     public ArrayList<Cell> getCellsList() {
         return cellsList;
@@ -116,21 +91,22 @@ public class Playground {
     }
 
     public void startInitialThreads() {
-        ExecutorService executor = Executors.newFixedThreadPool(4);
         for(Cell cell: cellsList) {
             Thread t = new Thread(cell);
             cell.thread = t;
-            executor.execute(t);//calling execute method of ExecutorService
+            t.start();
+            //executor.execute(t);//calling execute method of ExecutorService
         }
-        executor.shutdown();
-        while (!executor.isTerminated()) {   }
+        //executor.shutdown();
+        //while (!executor.isTerminated()) {   }
     }
 
-    public void addInitialFood(){
 
-        for(int i=0; i<20; i++){
+    public void addInitialFood(int recourceNr){
+
+       for(int i=1; i<=recourceNr; i++){
             try {
-                this.food.put(new Food(1,"resource" + i));
+                this.food.put(new Food(50,"resource"+i));
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -142,12 +118,13 @@ public class Playground {
 
 
         Playground gameOfLife = new Playground();
-        gameOfLife.addInitialFood();
+        gameOfLife.addInitialFood(5);
 
-        for(int i=0; i<2; i++)
+        //gameOfLife.addCell(new AsexuateCell(5, 5, "ACell1") );
+        for(int i=0; i<5; i++)
         {
-            gameOfLife.addCell(new AsexuateCell(5, 5, "ACell" + i) );
-            gameOfLife.addCell(new SexuateCell(3, 4, "SCell" + i) );
+            //gameOfLife.addCell(new AsexuateCell(1, 8, "ACell" + i) );
+           gameOfLife.addCell(new SexuateCell(1, 5, "SCell" + i) );
 
         }
 

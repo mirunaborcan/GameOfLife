@@ -2,6 +2,7 @@ package cells;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -25,7 +26,7 @@ public class SexuateCell extends Cell {
 
     @Override
     public void reproduce() {
-        playgroundObj.getLogger().info(this.cellName + " wants to divide!");
+        //playgroundObj.getLogger().info(this.cellName + " wants to divide!");
         //search for cells that want to divide too
         ArrayList<Cell> cellsQ = playgroundObj.getCellsList();
         Iterator<Cell> it = cellsQ.iterator();
@@ -36,7 +37,7 @@ public class SexuateCell extends Cell {
                     continue;
                 SexuateCell sexuateCell = (SexuateCell)currentCell;
                 if (!sexuateCell.equals(this)) {
-                    if (sexuateCell.getDivisibleStatus() && sexuateCell.hasDivided==false) {
+                    if (sexuateCell.getDivisibleStatus() && !sexuateCell.hasDivided) {
                         boolean lockCell = sexuateCell.lock.tryLock(); // blocks the cell with which our cell tries to divide with
                         if (lockCell && sexuateCell.lockCell(this)) {
                             try {
@@ -55,20 +56,19 @@ public class SexuateCell extends Cell {
                                 this.die();
                                 currentCell.die();
                                 playgroundObj.removeCell(sexuateCell);
-                                playgroundObj.getLogger().info("Cell died after reproduction " + this.cellName);
                                 playgroundObj.removeCell(this);
-                                playgroundObj.getLogger().info("Cell died after reproduction " + sexuateCell.cellName);
                                 sexuateCell.unlockCell(this);
                                 sexuateCell.lock.unlock();
                                 currentCell.thread.interrupt();
                                 this.thread.interrupt();
+                                playgroundObj.getLogger().info("Cell died after reproduction " + this.cellName);
+                                playgroundObj.getLogger().info("Cell died after reproduction " + sexuateCell.cellName);
                             }
                         }
                     }
                 }
-               if(this.hasDivided == true)
+                if(this.hasDivided)
                     break;
-                it.next();
             }
 
         } catch (Exception e) {
@@ -77,11 +77,7 @@ public class SexuateCell extends Cell {
     }
 
     public boolean lockCell(SexuateCell c) {
-        if (c.lock.tryLock()) {
-            return true;
-        } else {
-            return false;
-        }
+        return c.lock.tryLock();
     }
 
     public void unlockCell(SexuateCell c) {
@@ -89,7 +85,7 @@ public class SexuateCell extends Cell {
     }
 
     public boolean canReproduce() {
-        if ((this.numberOfMeals >= 10) && hasDivided==false ) {
+        if ((this.numberOfMeals >= 10) && !hasDivided) {
             divisible = true;
             return true;
         }
