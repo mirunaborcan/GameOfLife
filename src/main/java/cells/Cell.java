@@ -7,25 +7,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Cell implements Runnable {
-    public static Playground playgroundObj; //the actual game
-
-
-
+    public static Playground playgroundObj;
     protected int numberOfMeals;
-
     private long timeSinceLastEaten;
-
     protected final int timeFull;
-
     protected final int timeStarve;
-
     public AtomicBoolean cellAlive = new AtomicBoolean(true);
-
     public Thread thread;
-
     public String cellName;
-
-
     public Cell(int timeFullInitial, int timeStarveInitial, String name) {
         this.numberOfMeals = 0;
         this.timeFull = timeFullInitial;
@@ -70,9 +59,11 @@ public abstract class Cell implements Runnable {
     @Override
     public void run()  {
         this.timeSinceLastEaten = System.currentTimeMillis();
+        // if a cell is alive, it can reproduce and eat
         while (cellAlive.get()) {
             try {
-                if(cellAlive.get() && canReproduce()) reproduce();
+                if(cellAlive.get() && canReproduce())
+                    reproduce();
                 eat(playgroundObj);
             } catch (InterruptedException e){
                 Thread.currentThread().interrupt();

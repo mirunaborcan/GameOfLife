@@ -26,23 +26,21 @@ public class Playground {
         try {
             boolean lockFood;
             for (final Food resource : food) {
+                //find a resource and lock it
                 lockFood = resource.lock.tryLock();
                 if (lockFood) {
                     try {
-                        //log.info(threadInfo + " acquired lock for " + resource.name);
+                        //log.info(threadInfo + " demand lock for " + resource.name);
                         if (resource.getFoodUnit() > 0) {
                             resource.decrement();
                             log.info("Food " + resource.name + " decremented by " + threadInfo);
                             return true;
                         }
                     } finally {
-                        // Make sure to unlock so that we don't cause a deadlock
-                        //log.info(threadInfo + " unlocked " + resource.name);
+                     // unlock the resource after a cell ate 1 food unit from it
                         resource.lock.unlock();
                     }
                 }
-//                else
-//                    log.info(threadInfo + " tried to lock food resource " + resource.name + " but it was locked");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -55,24 +53,20 @@ public class Playground {
     }
 
 
-    public void addFood(int resources, String threadInfo) {
+    public void addFood(int foodUnits, String threadInfo) {
 
         boolean lockFood;
         for (final Food resource : food) {
             lockFood = resource.lock.tryLock();
             if (lockFood) {
                 try {
-                    resource.increment(resources);
-                    log.info("Food " + resource.name + " has been incremented");
+                    resource.increment(foodUnits);
+                    log.info("Food " + resource.name + " has been incremented after cell" + threadInfo + "died");
                     break;
                 } finally {
-                    // Make sure to unlock so that we don't cause a deadlock
-                    // log.info(threadInfo + " unlocked " + resource.name);
                     resource.lock.unlock();
                 }
-            } //else
-            // log.info(threadInfo + " tried to lock food " + resource.name);
-
+            }
 
         }
 
@@ -105,18 +99,15 @@ public class Playground {
 
     public static void main(String[] args) {
 
-
         Playground gameOfLife = new Playground();
         gameOfLife.addInitialFood(1);
 
-        //gameOfLife.addCell(new AsexuateCell(5, 5, "ACell1") );
         for(int i=0; i<4; i++)
         {
             gameOfLife.addCell(new AsexuateCell(1, 1, "ACell" + i) );
             gameOfLife.addCell(new SexuateCell(1, 1,"SCell" + i) );
 
         }
-
 
         Cell.playgroundObj = gameOfLife;
         gameOfLife.startInitialThreads();

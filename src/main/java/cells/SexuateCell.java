@@ -22,10 +22,14 @@ public class SexuateCell extends Cell {
         try {
             while (it.hasNext()) {
                 Cell currentCell = it.next();
+                // if there is another sexuate cell
                 if(!(currentCell instanceof SexuateCell sexuateCell))
                     continue;
+                // and different from itself
                 if (!sexuateCell.equals(this)) {
-                        boolean lockCell = sexuateCell.lock.tryLock(); // blocks the cell with which our cell tries to divide with
+                    // locks the cell chosen to reproduce with
+                        boolean lockCell = sexuateCell.lock.tryLock();
+                        // locks also the current sexuate cell
                         if (lockCell && this.lock.tryLock()) {
                             try {
                                 playgroundObj.getLogger().info(this.cellName + " was locked by " + currentCell.cellName);
@@ -33,14 +37,16 @@ public class SexuateCell extends Cell {
                                 //reproduce
                                 playgroundObj.getLogger().info("Sexual division betweeen " + this.cellName + " and " + currentCell.cellName);
                                 Cell c = new SexuateCell(this.timeFull, this.timeStarve, this.cellName + " child");
+                                // add the newborn child into the queue of cells
                                 playgroundObj.addCell(c);
                                 Thread t = new Thread(c);
                                 t.start();
 
-                                //make them hungry
+                                //make the parents hungry
                                 sexuateCell.numberOfMeals = 0;
                                 this.numberOfMeals = 0;
                             } finally {
+
                                 this.lock.unlock();
                                 sexuateCell.lock.unlock();
                             }
