@@ -31,7 +31,7 @@ public abstract class Cell implements Runnable {
         this.timeFullInitial = timeFullInitial;
         this.timeStarveInitial = timeStarveInitial;
         this.cellName = name;
-        this.startTimeFull = System.currentTimeMillis();
+        //this.startTimeFull = System.currentTimeMillis();
         resetTimers();
     }
 
@@ -93,8 +93,8 @@ public abstract class Cell implements Runnable {
             this.startTimeFull = System.currentTimeMillis();
             while (cellAlive.get()) {
                 try {
-                    eat(playgroundObj);
                     if(cellAlive.get() && canReproduce()) reproduce();
+                    eat(playgroundObj);
                 } catch (InterruptedException e){
                     Thread.currentThread().interrupt();
                     playgroundObj.getLogger().info("Thread interrupted");

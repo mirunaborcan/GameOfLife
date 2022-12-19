@@ -8,7 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class SexuateCell extends Cell {
     public final Lock lock = new ReentrantLock();
-    private boolean divisible = false;
+    private boolean divisible = true;
     public boolean hasDivided = false;
 
     public boolean getDivisibleStatus() {
@@ -24,11 +24,13 @@ public class SexuateCell extends Cell {
         super(timeUntilHungry, timeUntilStarve, name);
     }
 
+
+
     @Override
     public void reproduce() {
         //playgroundObj.getLogger().info(this.cellName + " wants to divide!");
         //search for cells that want to divide too
-        ArrayList<Cell> cellsQ = playgroundObj.getCellsList();
+        LinkedBlockingQueue<Cell> cellsQ = playgroundObj.getCellsList();
         Iterator<Cell> it = cellsQ.iterator();
         try {
             while (it.hasNext()) {
@@ -37,42 +39,47 @@ public class SexuateCell extends Cell {
                     continue;
                 SexuateCell sexuateCell = (SexuateCell)currentCell;
                 if (!sexuateCell.equals(this)) {
-                    if (sexuateCell.getDivisibleStatus() && !sexuateCell.hasDivided) {
+                    if (true) {
                         boolean lockCell = sexuateCell.lock.tryLock(); // blocks the cell with which our cell tries to divide with
-                        if (lockCell && sexuateCell.lockCell(this)) {
+                        if (lockCell && this.lock.tryLock()) {
+                            sexuateCell.setDivisibleStatus(false);
                             try {
                                 playgroundObj.getLogger().info(this.cellName + " was locked by " + currentCell.cellName);
                                 //make baby
-                                this.divisible = false;
-                                this.hasDivided = true;
-                                sexuateCell.setDivisibleStatus(false);
-                                sexuateCell.hasDivided = true;
+                                //this.divisible = false;
+                                //this.hasDivided = true;
+
+                               // sexuateCell.hasDivided = true;
                                 playgroundObj.getLogger().info("Sexual division betweeen " + this.cellName + " and " + currentCell.cellName);
                                 Cell c = new SexuateCell(this.timeFullInitial, this.timeStarveInitial, this.cellName + " child");
                                 playgroundObj.addCell(c);
                                 Thread t = new Thread(c);
                                 t.start();
+                                sexuateCell.numberOfMeals = 0;
+                                this.numberOfMeals = 0;
                             } finally {
-                                this.die();
-                                currentCell.die();
-                                playgroundObj.removeCell(sexuateCell);
-                                playgroundObj.removeCell(this);
-                                sexuateCell.unlockCell(this);
+                                //this.die();
+                                //currentCell.die();
+                               // playgroundObj.removeCell(sexuateCell);
+                                //playgroundObj.removeCell(this);
+                               // sexuateCell.unlockCell(this);
+                                this.lock.unlock();
                                 sexuateCell.lock.unlock();
-                                currentCell.thread.interrupt();
-                                this.thread.interrupt();
-                                playgroundObj.getLogger().info("Cell died after reproduction " + this.cellName);
-                                playgroundObj.getLogger().info("Cell died after reproduction " + sexuateCell.cellName);
+                                //currentCell.thread.interrupt();
+                                //this.thread.interrupt();
+                                //playgroundObj.getLogger().info("Cell died after reproduction " + this.cellName);
+                               // playgroundObj.getLogger().info("Cell died after reproduction " + sexuateCell.cellName);
                             }
+                            return;
                         }
                     }
                 }
-                if(this.hasDivided)
-                    break;
+
+                //it.hasNext();
             }
 
         } catch (Exception e) {
-            System.out.println("No cells left for reproducing!");
+            e.printStackTrace();
         }
     }
 
@@ -85,7 +92,7 @@ public class SexuateCell extends Cell {
     }
 
     public boolean canReproduce() {
-        if ((this.numberOfMeals >= 10) && !hasDivided) {
+        if ((this.numberOfMeals >= 10)) {
             divisible = true;
             return true;
         }

@@ -16,7 +16,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Playground {
 
     //private ExecutorService executor = Executors.newFixedThreadPool(100);
-    private ArrayList<Cell> cellsList = new ArrayList<>();
+    private LinkedBlockingQueue<Cell> cellsList = new LinkedBlockingQueue<>();
     private LinkedBlockingQueue<Food> food = new LinkedBlockingQueue<>();
     private static final Logger log = LoggerFactory.getLogger(Playground.class);
 
@@ -26,7 +26,9 @@ public class Playground {
     public boolean canEat(String threadInfo) {
         try {
             boolean lockFood;
-            for (final Food resource : food) {
+            Iterator<Food> foodIt = food.iterator();
+            while(foodIt.hasNext()) {
+                Food resource = foodIt.next();
                 lockFood = resource.lock.tryLock();
                 if (lockFood) {
                     try {
@@ -52,7 +54,7 @@ public class Playground {
     }
 
     public void addCell(Cell c) {
-        cellsList.add(c);
+        this.cellsList.add(c);
        // Thread t = new Thread(c);
         //c.thread = t;
        // executor.execute(t);
@@ -82,12 +84,12 @@ public class Playground {
 
    }
 
-    public ArrayList<Cell> getCellsList() {
-        return cellsList;
+    public LinkedBlockingQueue<Cell> getCellsList() {
+        return this.cellsList;
     }
 
     public void removeCell(Cell c){
-        cellsList.remove(c);
+        this.cellsList.remove(c);
     }
 
     public void startInitialThreads() {
@@ -106,7 +108,7 @@ public class Playground {
 
        for(int i=1; i<=recourceNr; i++){
             try {
-                this.food.put(new Food(50,"resource"+i));
+                this.food.put(new Food(100,"resource"+i));
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -118,13 +120,13 @@ public class Playground {
 
 
         Playground gameOfLife = new Playground();
-        gameOfLife.addInitialFood(5);
+        gameOfLife.addInitialFood(2);
 
         //gameOfLife.addCell(new AsexuateCell(5, 5, "ACell1") );
-        for(int i=0; i<5; i++)
+        for(int i=0; i<4; i++)
         {
             //gameOfLife.addCell(new AsexuateCell(1, 8, "ACell" + i) );
-           gameOfLife.addCell(new SexuateCell(1, 5, "SCell" + i) );
+           gameOfLife.addCell(new SexuateCell(1, 10,"SCell" + i) );
 
         }
 
