@@ -16,7 +16,6 @@ public class SexuateCell extends Cell {
 
     @Override
     public void reproduce() {
-        //playgroundObj.getLogger().info(this.cellName + " wants to divide!");
         //search for cells that can reproduce too
         LinkedBlockingQueue<Cell> cellsQ = playgroundObj.getCellsList();
         Iterator<Cell> it = cellsQ.iterator();
